@@ -1,10 +1,10 @@
 require('dotenv').config();
-const { Client, Collection } = require('discord.js');
+const { Client, Collection, EmbedBuilder } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
 
 const client = new Client({
-  intents: ['Guilds', 'GuildMessages', 'MessageContent']
+  intents: ['Guilds', 'GuildMessages', 'MessageContent', 'GuildMembers']
 });
 
 client.commands = new Collection();
@@ -34,6 +34,41 @@ client.once('ready', () => {
   client.user.setActivity('KuramaMC On The Top!', { type: 'PLAYING' });
 });
 
+const OTOROL_ID = '1449295934843388024';
+const HOSGELDIN_KANALI_ID = '1448679747650322454';
+
+client.on('guildMemberAdd', async member => {
+  const rol = member.guild.roles.cache.get(OTOROL_ID);
+  if (rol) {
+    try {
+      await member.roles.add(rol);
+      console.log(`${member.user.tag} üyesine otorol verildi: ${rol.name}`);
+    } catch (error) {
+      console.error('Rol verilirken hata:', error);
+    }
+  }
+
+  const kanal = member.guild.channels.cache.get(HOSGELDIN_KANALI_ID);
+  if (kanal) {
+    const embed = new EmbedBuilder()
+      .setTitle('🎉 KuramaMC Ailesine Hoş Geldin!')
+      .setDescription(`
+        **${member.user.tag}** aramıza katıldı! 🌟
+        
+        Herkes Yeni Üyemize Merhaba Desin! 
+        IP: \`kuramamc.tkmc.net\`
+        Versiyon: 1.21.3+
+      `)
+      .setColor('#00FF00')
+      .setThumbnail(member.user.displayAvatarURL({ dynamic: true }))
+      .setImage('https://i.imgur.com/jLDX0Wf.png')
+      .setFooter({ text: 'Keyifli oyunlar dileriz!' })
+      .setTimestamp();
+
+    kanal.send({ embeds: [embed] });
+  }
+});
+
 client.on('messageCreate', async message => {
   if (!message.content.startsWith(PREFIX) || message.author.bot) return;
 
@@ -52,7 +87,7 @@ client.on('messageCreate', async message => {
     }
   } catch (error) {
     console.error(error);
-    message.reply('Komut çalışırken bir hata oldu reis!');
+    message.reply('Komut çalışırken bir hata oldu');
   }
 });
 
