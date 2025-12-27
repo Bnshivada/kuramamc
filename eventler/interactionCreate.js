@@ -93,3 +93,7 @@ if (interaction.customId === "destek_kaldir") {
     await channel.delete().catch(() => {});
   }, 5000);
 }
+  }
+};
+
+}
