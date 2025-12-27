@@ -28,11 +28,11 @@ const {
 
 const fs = require('fs');
 const path = require('path');
-const OpenAI = require("openai");
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const geminiModel = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 const client = new Client({
   intents: [
@@ -95,15 +95,18 @@ client.on(Events.MessageCreate, async message => {
   try {
     await message.channel.sendTyping();
 
-    const response = await openai.responses.create({
-      model: "gpt-4.1-mini",
-      input: [
-        { role: "system", content: "Sen KuramaMC sunucusu için çalışan yardımcı bir yapay zekasın. Sunucu IP Adresi kuramamc.tkmc.net Sürümü 1.21.5 ve Sunucu Henüz Açılmadı Bunları Oyuncular Sorduğuna Söyle" },
-        ...gecmis
-      ]
-    });
+    const prompt = [
+      {
+        role: "system",
+        content: "Sen KuramaMC sunucusu için çalışan yardımcı bir yapay zekasın. Sunucu IP Adresi kuramamc.tkmc.net Sürümü 1.21.5 ve Sunucu Henüz Açılmadı Bunları Oyuncular Sorduğuna Söyle"
+      },
+      ...gecmis
+    ]
+      .map(m => `${m.role === "user" ? "Kullanıcı" : "Asistan"}: ${m.content}`)
+      .join("\n");
 
-    const cevap = response.output_text?.slice(0, 1900) || "KuramaMC AI - Error 605.";
+    const result = await geminiModel.generateContent(prompt);
+    const cevap = result.response.text().slice(0, 1900);
 
     gecmis.push({ role: "assistant", content: cevap });
 
