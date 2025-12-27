@@ -80,13 +80,12 @@ client.on('guildMemberAdd', async member => {
 
   const embed = new EmbedBuilder()
     .setAuthor({
-      name: '🎉 KuramaMC Ailesine Hoş Geldin!',
+      name: 'KuramaMC - Hoşgeldin!',
       iconURL: 'https://i.imgur.com/jLDX0Wf.png'
     })
     .setDescription(`
 **${member.user.tag}** aramıza katıldı! 🌟
-
-Herkes yeni üyemize merhaba desin 👋
+Herkes Yeni Üyemize Merhaba Desin!! 👋
 
 🟢 **IP:** \`kuramamc.tkmc.net\`
 🟢 **Versiyon:** 1.21.3+
@@ -118,5 +117,4 @@ client.on('messageCreate', async message => {
   }
 });
 
-// ==================== LOGIN ====================
 client.login(process.env.TOKEN);
