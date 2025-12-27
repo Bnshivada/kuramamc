@@ -2,17 +2,18 @@ const {
   EmbedBuilder,
   ActionRowBuilder,
   ButtonBuilder,
-  ButtonStyle,
-  ModalBuilder,
-  TextInputBuilder,
-  TextInputStyle,
-  Events
+  ButtonStyle
 } = require("discord.js");
 
 module.exports = {
   name: "yetkilibasvuru",
 
   async execute(message) {
+    if (!message.member.permissions.has("Administrator")) {
+
+      return message.reply({ content: "❌ Bu komutu kullanmak için yetkiniz yok!", ephemeral: true });
+    }
+
     await message.delete().catch(() => {});
 
     const randomColor = Math.floor(Math.random() * 16777215);
