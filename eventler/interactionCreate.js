@@ -39,7 +39,7 @@ module.exports = {
       );
 
       await ticketChannel.send({ content: "", embeds: [embed], components: [buttonRow] });
-      return await interaction.reply({ content: `Destek Talebiniz Başarıyla Oluşturuldu: ${ticketChannel}`, ephemeral: true });
+      return interaction.reply({ content: `Destek Talebiniz Başarıyla Oluşturuldu: ${ticketChannel}`, ephemeral: true });
     }
 
     if (interaction.customId === "destek_sahiplen") {
@@ -47,12 +47,25 @@ module.exports = {
         return interaction.reply({ content: "Kendi Destek Biletini Sahiplenemezsin!", ephemeral: true });
       }
 
+      const ticketChannel = interaction.channel;
       const message = interaction.message;
-      const embed = EmbedBuilder.from(message.embeds[0]);
-      embed.setDescription(`${member} Bu Sohbete Katıldı, Artık Sizinle ${member} İlgilenecek`);
 
-      await message.edit({ embeds: [embed] });
-      return await interaction.reply({ content: `Destek Sahiplenildi, Lütfen Kullanıcı İle İlgilenin.`, ephemeral: true });
+      await ticketChannel.send(`🎉 Destek Sahiplenildi! ${member} artık bu ticket ile ilgilenecek.`);
+
+      const updatedRow = new ActionRowBuilder().addComponents(
+        new ButtonBuilder()
+          .setCustomId("destek_sahiplen")
+          .setLabel("Destek Sahiplenildi!")
+          .setStyle(ButtonStyle.Secondary)
+          .setDisabled(true),
+        new ButtonBuilder()
+          .setCustomId("destek_kaldir")
+          .setLabel("Desteği Sil")
+          .setStyle(ButtonStyle.Danger)
+      );
+
+      await message.edit({ components: [updatedRow] });
+      return interaction.reply({ content: "Destek Sahiplenildi!", ephemeral: true });
     }
 
     if (interaction.customId === "destek_kaldir") {
