@@ -50,7 +50,7 @@ module.exports = {
       const ticketChannel = interaction.channel;
       const message = interaction.message;
 
-      await ticketChannel.send(`🎉 Destek Sahiplenildi! ${member} artık bu ticket ile ilgilenecek.`);
+      await ticketChannel.send(`Destek Sahiplenildi! ${member} Artık Bu Destek İle İlgilenecek.`);
 
       const updatedRow = new ActionRowBuilder().addComponents(
         new ButtonBuilder()
