@@ -41,61 +41,18 @@ const client = new Client({
 client.commands = new Collection();
 const PREFIX = '!';
 
-
 const komutlarPath = path.join(__dirname, 'komutlar');
 const komutDosyalari = fs.readdirSync(komutlarPath).filter(f => f.endsWith('.js'));
 
 for (const dosya of komutDosyalari) {
   const komut = require(path.join(komutlarPath, dosya));
   if (!komut.name) continue;
-
   client.commands.set(komut.name, komut);
-
-  if (Array.isArray(komut.aliases)) {
-    komut.aliases.forEach(alias => client.commands.set(alias, komut));
-  }
 }
-
 
 client.once(Events.ClientReady, () => {
   console.log(`${client.user.tag} olarak giriş yapıldı!`);
-
-  setTimeout(() => {
-    client.user.setPresence({
-      activities: [{ name: '⚒️ KuramaMC Yapım Aşamasında ⚒️', type: 0 }],
-      status: 'online'
-    });
-  }, 5000);
 });
-
-
-const OTOROL_ID = '1454393822728421470';
-const HOSGELDIN_KANALI_ID = '1454515855671951524';
-
-client.on(Events.GuildMemberAdd, async member => {
-  const rol = member.guild.roles.cache.get(OTOROL_ID);
-  if (rol) await member.roles.add(rol).catch(() => {});
-
-  const kanal = member.guild.channels.cache.get(HOSGELDIN_KANALI_ID);
-  if (!kanal) return;
-
-  const embed = new EmbedBuilder()
-    .setAuthor({ name: 'KuramaMC - Hoşgeldin!', iconURL: member.guild.iconURL({ dynamic: true }) })
-    .setDescription(`
-**${member.user.tag}** aramıza katıldı! 🌟
-Herkes yeni üyemize merhaba desin 👋
-
-🟢 **IP:** \`kuramamc.tkmc.net\`
-🟢 **Versiyon:** 1.21.3+
-`)
-    .setColor('Green')
-    .setThumbnail(member.user.displayAvatarURL({ dynamic: true }))
-    .setFooter({ text: 'Keyifli oyunlar dileriz!' })
-    .setTimestamp();
-
-  kanal.send({ embeds: [embed] });
-});
-
 
 client.on(Events.MessageCreate, async message => {
   if (message.author.bot) return;
@@ -106,50 +63,67 @@ client.on(Events.MessageCreate, async message => {
   const komut = client.commands.get(komutAdi);
   if (!komut) return;
 
-  try {
-    await komut.execute(message, client);
-  } catch (err) {
-    console.error(err);
-    message.reply('❌ Komut çalışırken hata oluştu.');
-  }
+  await komut.execute(message, client);
 });
-
 
 const BASVURU_LOG_KANAL = "1454533545396670747";
 const ONAY_KANAL = "1454515007806115984";
 
 client.on(Events.InteractionCreate, async interaction => {
 
-  if (interaction.isModalSubmit() && interaction.customId === "yetkili_basvuru_modal") {
+  if (interaction.isButton() && interaction.customId === "yetkili_basvuru_buton") {
 
-    const cevaplar = [
-      interaction.fields.getTextInputValue("ad"),
-      interaction.fields.getTextInputValue("yas"),
-      interaction.fields.getTextInputValue("aktiflik"),
-      interaction.fields.getTextInputValue("ekip"),
-      interaction.fields.getTextInputValue("ign"),
-      interaction.fields.getTextInputValue("yetki")
+    const modal = new ModalBuilder()
+      .setCustomId("yetkili_basvuru_modal")
+      .setTitle("KuramaMC - Yetkili Başvuru");
+
+    const sorular = [
+      ["ad", "Adınız Nedir?"],
+      ["yas", "Yaşınız Kaç?"],
+      ["aktiflik", "Kaç Saat Aktif Kalabilirsiniz?"],
+      ["ekip", "Ekip Çalışmasına Uyumlu musunuz?"],
+      ["ign", "IGN (Oyun İçi İsim)"],
+      ["yetki", "Hangi Yetkiyi İstiyorsunuz?"]
     ];
 
-    const logEmbed = new EmbedBuilder()
+    sorular.forEach(s => {
+      modal.addComponents(
+        new ActionRowBuilder().addComponents(
+          new TextInputBuilder()
+            .setCustomId(s[0])
+            .setLabel(s[1])
+            .setStyle(TextInputStyle.Short)
+            .setRequired(true)
+        )
+      );
+    });
+
+    return interaction.showModal(modal);
+  }
+
+  if (interaction.isModalSubmit() && interaction.customId === "yetkili_basvuru_modal") {
+
+    const cevaplar = ["ad","yas","aktiflik","ekip","ign","yetki"]
+      .map(x => interaction.fields.getTextInputValue(x));
+
+    const embed = new EmbedBuilder()
       .setTitle("📃 Yeni Yetkili Başvurusu")
       .setColor("Blurple")
       .setDescription(
         `${interaction.user}\n\n` +
-        `**1️⃣ Adınız Nedir?**\n${cevaplar[0]}\n\n` +
-        `**2️⃣ Yaşınız Kaç?**\n${cevaplar[1]}\n\n` +
-        `**3️⃣ Kaç Saat Aktif Kalabilirsiniz?**\n${cevaplar[2]}\n\n` +
-        `**4️⃣ Ekip Çalışmasına Uyumlu musunuz?**\n${cevaplar[3]}\n\n` +
+        `**1️⃣ Ad**\n${cevaplar[0]}\n\n` +
+        `**2️⃣ Yaş**\n${cevaplar[1]}\n\n` +
+        `**3️⃣ Aktiflik**\n${cevaplar[2]}\n\n` +
+        `**4️⃣ Ekip Uyumu**\n${cevaplar[3]}\n\n` +
         `**5️⃣ IGN**\n${cevaplar[4]}\n\n` +
-        `**6️⃣ İstenen Yetki**\n${cevaplar[5]}`
+        `**6️⃣ Yetki**\n${cevaplar[5]}`
       )
       .setFooter({
         text: "KuramaMC - Yetkili Başvuru Sistemi",
         iconURL: interaction.guild.iconURL({ dynamic: true })
-      })
-      .setTimestamp();
+      });
 
-    const buttons = new ActionRowBuilder().addComponents(
+    const row = new ActionRowBuilder().addComponents(
       new ButtonBuilder()
         .setCustomId(`basvuru_onay_${interaction.user.id}`)
         .setLabel("✅ ONAYLA")
@@ -162,58 +136,37 @@ client.on(Events.InteractionCreate, async interaction => {
 
     interaction.guild.channels.cache
       .get(BASVURU_LOG_KANAL)
-      ?.send({ embeds: [logEmbed], components: [buttons] });
+      ?.send({ embeds: [embed], components: [row] });
 
     return interaction.reply({ content: "✅ Başvurun gönderildi!", ephemeral: true });
   }
 
   if (interaction.isButton()) {
-    const basvuranId = interaction.customId.split("_").pop();
-    const basvuran = await interaction.guild.members.fetch(basvuranId).catch(() => null);
+
+    const id = interaction.customId.split("_").pop();
+    const basvuran = await interaction.guild.members.fetch(id).catch(() => null);
     if (!basvuran) return;
 
     const yetkili = interaction.user;
     const kanal = interaction.guild.channels.cache.get(ONAY_KANAL);
+    const onay = interaction.customId.startsWith("basvuru_onay_");
 
-    if (interaction.customId.startsWith("basvuru_onay_")) {
-      const embed = new EmbedBuilder()
-        .setTitle("🟢 KuramaMC - Başvuru Onayı!")
-        .setColor("Green")
-        .setDescription(
-          `Merhaba ${basvuran},\n\nBaşvurun ${yetkili} tarafından **ONAYLANDI**.\n` +
-          `${basvuran} lütfen destek talebi açınız!\n\n` +
-          `**Onaylayan Yetkili**\n${yetkili}\n\n` +
-          `**Başvuran Kişi**\n${basvuran}`
-        )
-        .setFooter({
-          text: "KuramaMC - Yetkili Başvuru Sistemi",
-          iconURL: interaction.guild.iconURL({ dynamic: true })
-        })
-        .setTimestamp();
+    const embed = new EmbedBuilder()
+      .setTitle(onay ? "🟢 KuramaMC - Başvuru Onayı!" : "🔴 KuramaMC - Başvuru Reddedildi")
+      .setColor(onay ? "Green" : "Red")
+      .setDescription(
+        onay
+          ? `${basvuran} Kullanıcısının Başvurusu ${yetkili} Tarafından **ONAYLANDI**.\n\n**Onaylayan Yetkili**\n${yetkili}\n\n**Başvuran Kişi**\n${basvuran}`
+          : `${basvuran} Kullanıcısının Başvurusu ${yetkili} Tarafından **REDDEDİLDİ**.\n\n**Reddeden Yetkili**\n${yetkili}\n\n**Başvuran Kişi**\n${basvuran}`
+      )
+      .setFooter({
+        text: "KuramaMC - Yetkili Başvuru Sistemi",
+        iconURL: interaction.guild.iconURL({ dynamic: true })
+      });
 
-      kanal?.send({ embeds: [embed] });
-    }
-
-    if (interaction.customId.startsWith("basvuru_red_")) {
-      const embed = new EmbedBuilder()
-        .setTitle("🔴 KuramaMC - Başvuru Reddedildi")
-        .setColor("Red")
-        .setDescription(
-          `${basvuran} kullanıcısının başvurusu ${yetkili} tarafından **REDDEDİLDİ**.\n\n` +
-          `**Reddeden Yetkili**\n${yetkili}\n\n` +
-          `**Başvuran Kişi**\n${basvuran}`
-        )
-        .setFooter({
-          text: "KuramaMC - Yetkili Başvuru Sistemi",
-          iconURL: interaction.guild.iconURL({ dynamic: true })
-        })
-        .setTimestamp();
-
-      kanal?.send({ embeds: [embed] });
-    }
-
+    kanal?.send({ embeds: [embed] });
     await interaction.message.edit({ components: [] });
-    await interaction.reply({ content: "İşlem tamamlandı.", ephemeral: true });
+    return interaction.reply({ content: "İşlem Başarıyla Tamamlandı.", ephemeral: true });
   }
 });
 
