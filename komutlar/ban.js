@@ -4,7 +4,9 @@ module.exports = {
     name: 'ban',
     description: 'Üyeyi sunucudan banlar.',
     usage: '!ban @üye #sebep',
-    async execute(message, args) {
+    async execute(message, client) {
+
+        const args = message.content.slice(1).trim().split(/ +/);
 
         if (!message.member.permissions.has(PermissionsBitField.Flags.BanMembers)) {
             return message.reply('❌ KuramamaMC Bu Komutu Kullanmak İçin (Üyeleri Yasakla) Yetkinin Olduğunu Düşünmüyor.');
@@ -27,8 +29,7 @@ module.exports = {
             return message.reply('❌ Bu üyeyi yasaklayamazsın (rolü senden yüksek/eşit).');
         }
 
-        const reason = args.slice(1).join(' ') || 'Nedeni Belirtilmedi';
-
+        const reason = args.slice(2).join(' ') || 'Nedeni Belirtilmedi';
         const banDate = new Date().toLocaleString('tr-TR');
 
         try {
