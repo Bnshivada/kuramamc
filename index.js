@@ -294,3 +294,4 @@ client.on(Events.GuildMemberAdd, async member => {
 });
 
 client.login(process.env.TOKEN);
+
