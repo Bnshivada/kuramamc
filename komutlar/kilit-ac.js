@@ -19,7 +19,7 @@ module.exports = {
                 .setColor(`#${randomColor}`)
                 .setTitle("🔓 Kanalın Kilidi Başarıyla Açıldı")
                 .setDescription(`${channel} Adlı Kanalın Kilidi \n<@${message.member.id}> İsimli Yetkili Tarafından Açıldı .\nKanal artık yazmaya açık, üyeler mesaj gönderebilir.`)
-                .setFooter({ text: "kuramamc.tkmc.net | KuramaMC" })
+                .setFooter({ text: "5.133.100.199 | KuramaMC" })
                 .setTimestamp();
 
             message.channel.send({ embeds: [embed] });
