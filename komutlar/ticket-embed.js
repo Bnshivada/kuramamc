@@ -22,7 +22,7 @@ module.exports = {
       )
       .setColor("Blue")
       .setFooter({
-        text: "kuramamc.tkmc.net | KuramaMC",
+        text: "5.133.100.199 | KuramaMC",
         iconURL: message.guild.iconURL({ dynamic: true })
       });
 
