@@ -21,7 +21,7 @@ module.exports = {
                 { name: "💬 Kanal Sayısı", value: `${guild.channels.cache.size}`, inline: true },
                 { name: "📅 Oluşturulma Tarihi", value: `<t:${Math.floor(guild.createdTimestamp / 1000)}:F>`, inline: false }
             )
-            .setFooter({ text: "kuramamc.tkmc.net | KuramaMC" })
+            .setFooter({ text: "5.133.100.199 | KuramaMC" })
             .setTimestamp();
 
         message.channel.send({ embeds: [embed] });
