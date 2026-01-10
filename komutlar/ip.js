@@ -6,7 +6,7 @@ module.exports = {
   execute(message) {
     const embed = new EmbedBuilder()
   .setTitle('🌍 KuramaMC Sunucu IP Bilgisi')
-  .setDescription(`**IP:** \`kuramamc.tkmc.net\`\n**Versiyon:** 1.21.5+`)
+  .setDescription(`**IP:** \`5.133.100.199\`\n**Versiyon:** 1.21.5+`)
   .setColor('#00FF00')
   .setThumbnail(message.guild.iconURL({ dynamic: true, size: 512 }))
   .setFooter({ text: 'Haydi Oyuna Katıl!' })
